@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal - Digital Library System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Demo Notice Banner -->
+  <div class="demo-banner">
+    🔐 <strong>Admin Control Center</strong> · Manage Catalogue, Issue Audits, Overdue Fines & Member Database
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">📚</div>
+        <span>Digital Library <span class="badge badge-danger" style="margin-left: 0.5rem; font-size: 0.7rem;">ADMIN</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Catalogue</a></li>
+        <li><a href="user.html" class="nav-link">Member Dashboard</a></li>
+        <li><a href="admin.html" class="nav-link active">Admin Portal</a></li>
+        <li><a href="contact.html" class="nav-link">Help & Queries</a></li>
+      </ul>
+      <div class="nav-actions" id="navActions"></div>
+    </div>
+  </header>
+
+  <!-- Admin Content Container -->
+  <main class="container">
+    <div id="adminAuthLock" style="display: none; max-width: 440px; margin: 4rem auto; text-align: center;">
+      <div style="background: var(--white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-xl);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+        <h2 style="font-weight: 800; margin-bottom: 0.5rem;">Admin Access Required</h2>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 1.5rem;">
+          Sign in with administrator privileges to manage books, oversee member accounts, and track overdue fines.
+        </p>
+        <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="loginAsDemoAdmin()">
+          ⚡ Quick Login as Demo Admin
+        </button>
+        <a href="login.html" class="btn btn-secondary" style="width: 100%;">Go to Full Login Page</a>
+      </div>
+    </div>
+
+    <div id="adminPanel">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--gray-900);">Library Administration</h1>
+          <p style="color: var(--gray-600); font-size: 0.95rem;">Catalog oversight, member accounts, circulation tracking, and fine management.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddBookModal()">
+          <span>+</span> Add New Book
+        </button>
+      </div>
+
+      <!-- KPI Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #e0e7ff; color: var(--primary);">📚</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Titles</span>
+            <span class="stat-value" id="statTotalBooks">0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #fef3c7; color: var(--warning);">📖</div>
+          <div class="stat-info">
+            <span class="stat-label">Active Issued</span>
+            <span class="stat-value" id="statIssuedBooks">0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #fee2e2; color: var(--danger);">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-label">Overdue Fines Due</span>
+            <span class="stat-value" id="statTotalFines">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #d1fae5; color: var(--success);">👥</div>
+          <div class="stat-info">
+            <span class="stat-label">Members</span>
+            <span class="stat-value" id="statTotalUsers">0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">🔖</div>
+          <div class="stat-info">
+            <span class="stat-label">Advance Bookings</span>
+            <span class="stat-value" id="statTotalReservations">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="tabBooks">Book Inventory</button>
+        <button class="tab-btn" data-tab="tabIssues">Issued Books & Fines</button>
+        <button class="tab-btn" data-tab="tabUsers">Member Accounts</button>
+        <button class="tab-btn" data-tab="tabReservations">Advance Bookings</button>
+        <button class="tab-btn" data-tab="tabQueries">Inquiries & Support</button>
+      </div>
+
+      <!-- Tab 1: Books Management -->
+      <div class="tab-pane active" id="tabBooks">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title & Author</th>
+                <th>Category</th>
+                <th>ISBN</th>
+                <th>Quantity (Avail / Total)</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="booksTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: Issued Books & Fine Management -->
+      <div class="tab-pane" id="tabIssues">
+        <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+          <p style="font-size: 0.9rem; color: var(--gray-600);">
+            Overdue fines are automatically calculated at <strong>₹5.00 per day</strong> once the due date has passed.
+          </p>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Issue ID</th>
+                <th>Book Title</th>
+                <th>Member Info</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Fine (₹5/day)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="issuesTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Member Accounts -->
+      <div class="tab-pane" id="tabUsers">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Joined Date</th>
+                <th>Active Issues</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 4: Advance Bookings -->
+      <div class="tab-pane" id="tabReservations">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Reservation ID</th>
+                <th>Book Title</th>
+                <th>Reserved By</th>
+                <th>Email</th>
+                <th>Booking Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="reservationsTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 5: Contact Queries -->
+      <div class="tab-pane" id="tabQueries">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Sender</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="queriesTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add / Edit Book Modal -->
+  <div class="modal-overlay" id="bookModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bookModalTitle">Add New Book</h3>
+        <button class="modal-close" onclick="closeModal('bookModal')">&times;</button>
+      </div>
+      <form id="bookForm">
+        <div class="modal-body">
+          <input type="hidden" id="bookId">
+          <div class="form-group">
+            <label class="form-label">Book Title *</label>
+            <input type="text" class="form-control" id="bookTitleInput" required placeholder="e.g. Clean Architecture">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Author *</label>
+            <input type="text" class="form-control" id="bookAuthorInput" required placeholder="e.g. Robert C. Martin">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">ISBN *</label>
+              <input type="text" class="form-control" id="bookIsbnInput" required placeholder="978-0134494166">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select class="form-control" id="bookCategoryInput" required>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Literature">Literature</option>
+                <option value="Science">Science</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Business">Business</option>
+                <option value="Mathematics">Mathematics</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Total Copies (Quantity) *</label>
+              <input type="number" class="form-control" id="bookQtyInput" min="1" max="100" required value="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Icon Emoji</label>
+              <input type="text" class="form-control" id="bookIconInput" value="📚">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" id="bookDescInput" placeholder="Brief summary of the book..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('bookModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBookBtn">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <strong>Digital Library Management System</strong> · Administrator Module
+      </div>
+      <div>
+        Fine Policy: <strong>₹5.00 / day overdue</strong>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let booksData = [];
+    let issuesData = [];
+    let usersData = [];
+    let reservationsData = [];
+    let queriesData = [];
+
+    function checkAdminAccess() {
+      const user = Auth.getCurrentUser();
+      const lock = document.getElementById('adminAuthLock');
+      const panel = document.getElementById('adminPanel');
+
+      if (!user || user.role !== 'ADMIN') {
+        lock.style.display = 'block';
+        panel.style.display = 'none';
+        return false;
+      }
+
+      lock.style.display = 'none';
+      panel.style.display = 'block';
+      return true;
+    }
+
+    function loginAsDemoAdmin() {
+      const admin = SEED_USERS[0];
+      Auth.setCurrentUser(admin);
+      updateNav();
+      checkAdminAccess();
+      showToast('Logged in as Administrator', 'success');
+      loadAllAdminData();
+    }
+
+    async function loadAllAdminData() {
+      try {
+        booksData = await DataService.getBooks();
+        issuesData = await DataService.getIssues();
+        usersData = await DataService.getUsers();
+        reservationsData = await DataService.getReservations();
+        queriesData = await DataService.getQueries();
+
+        renderStats();
+        renderBooksTable();
+        renderIssuesTable();
+        renderUsersTable();
+        renderReservationsTable();
+        renderQueriesTable();
+      } catch (err) {
+        showToast('Error loading admin records', 'danger');
+      }
+    }
+
+    function renderStats() {
+      document.getElementById('statTotalBooks').textContent = booksData.length;
+      const activeIssues = issuesData.filter(i => i.status !== 'RETURNED');
+      document.getElementById('statIssuedBooks').textContent = activeIssues.length;
+
+      // Unpaid fines
+      const unpaidFines = issuesData
+        .filter(i => !i.finePaid && i.fineAmount > 0)
+        .reduce((sum, i) => sum + i.fineAmount, 0);
+      document.getElementById('statTotalFines').textContent = `₹${unpaidFines.toFixed(2)}`;
+
+      document.getElementById('statTotalUsers').textContent = usersData.length;
+      document.getElementById('statTotalReservations').textContent = reservationsData.filter(r => r.status === 'PENDING').length;
+    }
+
+    function renderBooksTable() {
+      const tbody = document.getElementById('booksTableBody');
+      if (booksData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--gray-500); padding: 2rem;">No books in catalogue. Click "+ Add New Book" above.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = booksData.map(b => `
+        <tr>
+          <td>#${b.id}</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span>${b.icon || '📚'}</span>
+              <div>
+                <strong>${b.title}</strong>
+                <div style="font-size: 0.8rem; color: var(--gray-500);">by ${b.author}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-info">${b.category}</span></td>
+          <td><code>${b.isbn}</code></td>
+          <td>
+            <strong>${b.availableQuantity}</strong> / ${b.quantity}
+          </td>
+          <td>
+            <span class="badge ${b.availableQuantity > 0 ? 'badge-success' : 'badge-danger'}">
+              ${b.availableQuantity > 0 ? 'In Stock' : 'All Issued'}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="openEditBookModal(${b.id})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteBookRecord(${b.id})">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderIssuesTable() {
+      const tbody = document.getElementById('issuesTableBody');
+      if (issuesData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--gray-500); padding: 2rem;">No issued book records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = issuesData.map(issue => {
+        const isOverdue = issue.status === 'OVERDUE';
+        const isReturned = issue.status === 'RETURNED';
+
+        return `
+          <tr>
+            <td>#${issue.id}</td>
+            <td><strong>${issue.bookTitle}</strong></td>
+            <td>
+              <div>${issue.userName}</div>
+              <div style="font-size: 0.75rem; color: var(--gray-500);">${issue.userEmail}</div>
+            </td>
+            <td>${issue.issueDate}</td>
+            <td>
+              <span style="${isOverdue ? 'color: var(--danger); font-weight: 700;' : ''}">
+                ${issue.dueDate}
+              </span>
+            </td>
+            <td>
+              <span class="badge ${isReturned ? 'badge-success' : isOverdue ? 'badge-danger' : 'badge-warning'}">
+                ${issue.status}
+              </span>
+            </td>
+            <td>
+              ${issue.fineAmount > 0 
+                ? `<div style="font-weight: 700; color: ${issue.finePaid ? 'var(--success)' : 'var(--danger)'};">
+                    ₹${issue.fineAmount.toFixed(2)}
+                    <span class="badge ${issue.finePaid ? 'badge-success' : 'badge-danger'}" style="margin-left: 4px; font-size: 0.65rem;">
+                      ${issue.finePaid ? 'PAID' : 'DUE'}
+                    </span>
+                   </div>`
+                : '₹0.00'
+              }
+            </td>
+            <td>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                ${!isReturned ? `
+                  <button class="btn btn-primary btn-sm" onclick="markAsReturned(${issue.id})">Mark Returned</button>
+                ` : '<span style="font-size: 0.8rem; color: var(--gray-500);">Returned</span>'}
+                ${issue.fineAmount > 0 && !issue.finePaid ? `
+                  <button class="btn btn-success btn-sm" onclick="markFinePaid(${issue.id})">Mark Fine Paid</button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = usersData.map(u => {
+        const userActiveIssues = issuesData.filter(i => i.userId === u.id && i.status !== 'RETURNED').length;
+        return `
+          <tr>
+            <td>#${u.id}</td>
+            <td><strong>${u.name}</strong></td>
+            <td>${u.email}</td>
+            <td><span class="badge ${u.role === 'ADMIN' ? 'badge-danger' : 'badge-info'}">${u.role}</span></td>
+            <td>${u.phone || 'N/A'}</td>
+            <td>${u.joinedDate || '2026-01-01'}</td>
+            <td><strong>${userActiveIssues}</strong> books</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderReservationsTable() {
+      const tbody = document.getElementById('reservationsTableBody');
+      if (reservationsData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--gray-500); padding: 2rem;">No advance bookings found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = reservationsData.map(r => `
+        <tr>
+          <td>#${r.id}</td>
+          <td><strong>${r.bookTitle}</strong></td>
+          <td>${r.userName}</td>
+          <td>${r.userEmail}</td>
+          <td>${r.reservationDate}</td>
+          <td><span class="badge badge-warning">${r.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderQueriesTable() {
+      const tbody = document.getElementById('queriesTableBody');
+      if (queriesData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--gray-500); padding: 2rem;">No member inquiries recorded.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = queriesData.map(q => `
+        <tr>
+          <td>${q.date || '2026-11-10'}</td>
+          <td>
+            <strong>${q.name}</strong>
+            <div style="font-size: 0.75rem; color: var(--gray-500);">${q.email}</div>
+          </td>
+          <td><strong>${q.subject}</strong></td>
+          <td style="max-width: 300px; font-size: 0.85rem; color: var(--gray-700);">${q.message}</td>
+          <td>
+            <span class="badge ${q.status === 'RESOLVED' ? 'badge-success' : 'badge-danger'}">${q.status}</span>
+          </td>
+          <td>
+            ${q.status !== 'RESOLVED' ? `
+              <button class="btn btn-secondary btn-sm" onclick="markQueryResolved(${q.id})">Mark Resolved</button>
+            ` : '<span style="font-size: 0.8rem; color: var(--gray-500);">Resolved</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Book Actions
+    function openAddBookModal() {
+      document.getElementById('bookModalTitle').textContent = 'Add New Book';
+      document.getElementById('bookId').value = '';
+      document.getElementById('bookTitleInput').value = '';
+      document.getElementById('bookAuthorInput').value = '';
+      document.getElementById('bookIsbnInput').value = '';
+      document.getElementById('bookCategoryInput').value = 'Computer Science';
+      document.getElementById('bookQtyInput').value = '5';
+      document.getElementById('bookIconInput').value = '📚';
+      document.getElementById('bookDescInput').value = '';
+      openModal('bookModal');
+    }
+
+    function openEditBookModal(id) {
+      const book = booksData.find(b => b.id === Number(id));
+      if (!book) return;
+
+      document.getElementById('bookModalTitle').textContent = 'Edit Book Record';
+      document.getElementById('bookId').value = book.id;
+      document.getElementById('bookTitleInput').value = book.title;
+      document.getElementById('bookAuthorInput').value = book.author;
+      document.getElementById('bookIsbnInput').value = book.isbn;
+      document.getElementById('bookCategoryInput').value = book.category;
+      document.getElementById('bookQtyInput').value = book.quantity;
+      document.getElementById('bookIconInput').value = book.icon || '📚';
+      document.getElementById('bookDescInput').value = book.description || '';
+      openModal('bookModal');
+    }
+
+    document.getElementById('bookForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('bookId').value;
+      const bookPayload = {
+        title: document.getElementById('bookTitleInput').value.trim(),
+        author: document.getElementById('bookAuthorInput').value.trim(),
+        isbn: document.getElementById('bookIsbnInput').value.trim(),
+        category: document.getElementById('bookCategoryInput').value,
+        quantity: parseInt(document.getElementById('bookQtyInput').value, 10),
+        icon: document.getElementById('bookIconInput').value.trim() || '📚',
+        description: document.getElementById('bookDescInput').value.trim()
+      };
+
+      try {
+        if (id) {
+          await DataService.updateBook(id, bookPayload);
+          showToast('Book updated successfully', 'success');
+        } else {
+          await DataService.addBook(bookPayload);
+          showToast('New book added to inventory', 'success');
+        }
+        closeModal('bookModal');
+        await loadAllAdminData();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    });
+
+    async function deleteBookRecord(id) {
+      if (!confirm('Are you sure you want to delete this book record?')) return;
+      try {
+        await DataService.deleteBook(id);
+        showToast('Book record removed', 'success');
+        await loadAllAdminData();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function markAsReturned(issueId) {
+      try {
+        await DataService.returnBook(issueId);
+        showToast('Book marked as returned. Inventory incremented.', 'success');
+        await loadAllAdminData();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function markFinePaid(issueId) {
+      try {
+        await DataService.payFine(issueId);
+        showToast('Fine marked as PAID successfully', 'success');
+        await loadAllAdminData();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function markQueryResolved(queryId) {
+      try {
+        await DataService.resolveQuery(queryId);
+        showToast('Inquiry marked as resolved', 'success');
+        await loadAllAdminData();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    if (checkAdminAccess()) {
+      loadAllAdminData();
+    }
+  </script>
+</body>
+</html>

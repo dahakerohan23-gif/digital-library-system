@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Library Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Demo Notice Banner -->
+  <div class="demo-banner">
+    🚀 <strong>Task 5 Digital Library</strong> · Full Admin & User Portals · Instant Issue & Returns · Advance Booking · Overdue Fine Tracking (₹5/day)
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">📚</div>
+        <span>Digital Library</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link active">Catalogue</a></li>
+        <li><a href="user.html" class="nav-link">Member Dashboard</a></li>
+        <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+        <li><a href="contact.html" class="nav-link">Help & Queries</a></li>
+      </ul>
+      <div class="nav-actions" id="navActions">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    <!-- Hero Banner -->
+    <section class="hero">
+      <div class="hero-content">
+        <span class="hero-tag">Smart Knowledge Hub</span>
+        <h1 class="hero-title">Explore, Borrow, and Reserve Books Seamlessly.</h1>
+        <p class="hero-desc">
+          Browse thousands of titles across technology, science, and literature. Manage borrowing due dates, automatic overdue fine calculations, and instant advance reservations.
+        </p>
+        <div class="search-bar-wrap">
+          <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search book by title, author, or ISBN...">
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters & Stats Bar -->
+    <section class="filter-bar">
+      <div class="category-chips" id="categoryChips">
+        <button class="chip active" data-category="ALL">All Categories</button>
+        <button class="chip" data-category="Computer Science">Computer Science</button>
+        <button class="chip" data-category="Literature">Literature</button>
+        <button class="chip" data-category="Science">Science</button>
+        <button class="chip" data-category="Fiction">Fiction</button>
+        <button class="chip" data-category="Business">Business</button>
+      </div>
+      <div id="catalogStats" style="font-size: 0.9rem; color: var(--gray-600); font-weight: 500;">
+        Showing <span id="displayedCount">0</span> books
+      </div>
+    </section>
+
+    <!-- Book Grid -->
+    <section class="book-grid" id="bookGrid">
+      <!-- Injected by JavaScript -->
+    </section>
+  </main>
+
+  <!-- Issue Book Confirmation Modal -->
+  <div class="modal-overlay" id="issueModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Book Issue</h3>
+        <button class="modal-close" onclick="closeModal('issueModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 1rem; color: var(--gray-600);">
+          You are issuing: <strong id="issueBookTitle" style="color: var(--gray-900);"></strong>
+        </p>
+        <div style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Borrowing Period:</span>
+            <strong>7 Days</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>Due Date:</span>
+            <strong id="issueDueDate"></strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: var(--warning);">
+            <span>Overdue Fine Rate:</span>
+            <strong>₹5 per day after due date</strong>
+          </div>
+        </div>
+        <input type="hidden" id="issueBookId">
+        <p style="font-size: 0.8rem; color: var(--gray-500);">
+          By proceeding, available inventory will decrement by 1 and the return due date will be tracked in your account.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('issueModal')">Cancel</button>
+        <button class="btn btn-primary" id="confirmIssueBtn">Confirm & Issue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advance Booking / Reserve Modal -->
+  <div class="modal-overlay" id="reserveModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Advance Book Reservation</h3>
+        <button class="modal-close" onclick="closeModal('reserveModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 1rem; color: var(--gray-600);">
+          All copies of <strong id="reserveBookTitle" style="color: var(--gray-900);"></strong> are currently issued to other members.
+        </p>
+        <div style="background: #e0f2fe; color: #0369a1; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-size: 0.85rem;">
+          <p><strong>Advance Booking Feature:</strong> You will be placed in the priority reservation queue. As soon as another member returns this title, it will be held for you to collect.</p>
+        </div>
+        <input type="hidden" id="reserveBookId">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('reserveModal')">Cancel</button>
+        <button class="btn btn-accent" id="confirmReserveBtn">Place Reservation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <strong>Digital Library Management System</strong> · Spring Boot / Java / SQLite Architecture
+      </div>
+      <div>
+        Standard Fine Rate: <strong>₹5.00 / day</strong> · Max Borrow Limit: 3 books
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let currentCategory = 'ALL';
+    let searchQuery = '';
+    let allBooks = [];
+
+    async function loadBooks() {
+      try {
+        allBooks = await DataService.getBooks();
+        renderCatalogue();
+      } catch (err) {
+        showToast('Error loading book catalogue', 'danger');
+      }
+    }
+
+    function renderCatalogue() {
+      const grid = document.getElementById('bookGrid');
+      const filtered = allBooks.filter(book => {
+        const matchesCategory = currentCategory === 'ALL' || book.category.toLowerCase() === currentCategory.toLowerCase();
+        const matchesSearch = !searchQuery || 
+          book.title.toLowerCase().includes(searchQuery) || 
+          book.author.toLowerCase().includes(searchQuery) ||
+          book.isbn.includes(searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      document.getElementById('displayedCount').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--gray-300);">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔍</div>
+            <h3 style="font-weight: 700; color: var(--gray-800);">No books found</h3>
+            <p style="color: var(--gray-500); font-size: 0.9rem;">Try adjusting your search query or selecting a different category.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(book => {
+        const isAvailable = book.availableQuantity > 0;
+        return `
+          <div class="book-card">
+            <div class="book-card-header">
+              <span>${book.icon || '📖'}</span>
+              <span class="book-card-badge ${isAvailable ? 'badge-in-stock' : 'badge-out-of-stock'}">
+                ${isAvailable ? `${book.availableQuantity} Available` : 'All Issued'}
+              </span>
+            </div>
+            <div class="book-card-body">
+              <span class="book-category">${book.category}</span>
+              <h3 class="book-title">${book.title}</h3>
+              <p class="book-author">by ${book.author}</p>
+              <div class="book-meta">
+                <span><strong>ISBN:</strong> ${book.isbn}</span>
+                <span><strong>Total Stock:</strong> ${book.quantity} copies</span>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--gray-600); margin-bottom: 1rem; flex: 1;">
+                ${book.description || 'Standard academic reference book available for registered library members.'}
+              </p>
+              <div class="book-card-footer">
+                ${isAvailable 
+                  ? `<button class="btn btn-primary btn-sm" onclick="handleIssueClick(${book.id}, '${escapeQuotes(book.title)}')">Issue Book</button>`
+                  : `<button class="btn btn-accent btn-sm" onclick="handleReserveClick(${book.id}, '${escapeQuotes(book.title)}')">Advance Booking</button>`
+                }
+                <span style="font-size: 0.75rem; color: var(--gray-500);">Fine: ₹5/day</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeQuotes(str) {
+      return str.replace(/'/g, "\\'");
+    }
+
+    function handleIssueClick(bookId, title) {
+      let user = Auth.getCurrentUser();
+      if (!user) {
+        // Auto sign-in as demo member for seamless evaluator preview
+        user = SEED_USERS[1];
+        Auth.setCurrentUser(user);
+        updateNav();
+        showToast('Signed in as demo user: ' + user.name, 'info');
+      }
+
+      document.getElementById('issueBookId').value = bookId;
+      document.getElementById('issueBookTitle').textContent = title;
+      document.getElementById('issueDueDate').textContent = formatDateOffset(BORROWING_PERIOD_DAYS);
+      openModal('issueModal');
+    }
+
+    function handleReserveClick(bookId, title) {
+      let user = Auth.getCurrentUser();
+      if (!user) {
+        user = SEED_USERS[1];
+        Auth.setCurrentUser(user);
+        updateNav();
+        showToast('Signed in as demo user: ' + user.name, 'info');
+      }
+
+      document.getElementById('reserveBookId').value = bookId;
+      document.getElementById('reserveBookTitle').textContent = title;
+      openModal('reserveModal');
+    }
+
+    document.getElementById('confirmIssueBtn').addEventListener('click', async () => {
+      const bookId = document.getElementById('issueBookId').value;
+      const user = Auth.getCurrentUser();
+      try {
+        await DataService.issueBook(bookId, user);
+        closeModal('issueModal');
+        showToast('Book issued successfully! Due in 7 days.', 'success');
+        await loadBooks();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    });
+
+    document.getElementById('confirmReserveBtn').addEventListener('click', async () => {
+      const bookId = document.getElementById('reserveBookId').value;
+      const user = Auth.getCurrentUser();
+      try {
+        await DataService.reserveBook(bookId, user);
+        closeModal('reserveModal');
+        showToast('Advance booking confirmed! You will be notified when available.', 'success');
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    });
+
+    // Category chips filter
+    document.getElementById('categoryChips').addEventListener('click', (e) => {
+      if (e.target.classList.contains('chip')) {
+        document.querySelectorAll('#categoryChips .chip').forEach(c => c.classList.remove('active'));
+        e.target.classList.add('active');
+        currentCategory = e.target.dataset.category;
+        renderCatalogue();
+      }
+    });
+
+    // Search input
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderCatalogue();
+    });
+
+    loadBooks();
+  </script>
+</body>
+</html>

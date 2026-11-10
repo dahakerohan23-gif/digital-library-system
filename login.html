@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Registration - Digital Library System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Demo Notice Banner -->
+  <div class="demo-banner">
+    🔐 <strong>Authentication Hub</strong> · Dual Role System for Administrators & Members
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">📚</div>
+        <span>Digital Library</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Catalogue</a></li>
+        <li><a href="user.html" class="nav-link">Member Dashboard</a></li>
+        <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+        <li><a href="contact.html" class="nav-link">Help & Queries</a></li>
+      </ul>
+      <div class="nav-actions" id="navActions"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="max-width: 460px; margin: 2rem auto;">
+      <div style="background: var(--white); padding: 2.25rem; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-xl);">
+        
+        <!-- Tab Selector -->
+        <div class="tab-nav" style="margin-bottom: 1.5rem;">
+          <button class="tab-btn active" data-tab="tabLogin" style="flex: 1; text-align: center;">Sign In</button>
+          <button class="tab-btn" data-tab="tabRegister" style="flex: 1; text-align: center;">New Registration</button>
+        </div>
+
+        <!-- Tab 1: Login -->
+        <div class="tab-pane active" id="tabLogin">
+          <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center;">Welcome Back</h2>
+          <p style="color: var(--gray-500); font-size: 0.85rem; margin-bottom: 1.5rem; text-align: center;">
+            Sign in to access book issuing, reservations, or administrative dashboard.
+          </p>
+
+          <!-- Quick Demo Buttons -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="quickFill('admin@library.com', 'admin123')">
+              🛡️ Demo Admin
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="quickFill('user@library.com', 'user123')">
+              👤 Demo Member
+            </button>
+          </div>
+
+          <form id="loginForm">
+            <div class="form-group">
+              <label class="form-label">Email Address *</label>
+              <input type="email" class="form-control" id="loginEmail" required placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input type="password" class="form-control" id="loginPassword" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+              Sign In
+            </button>
+          </form>
+        </div>
+
+        <!-- Tab 2: Register -->
+        <div class="tab-pane" id="tabRegister">
+          <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center;">Create Account</h2>
+          <p style="color: var(--gray-500); font-size: 0.85rem; margin-bottom: 1.5rem; text-align: center;">
+            Register as a library member to borrow books and place advance bookings.
+          </p>
+          <form id="registerForm">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" class="form-control" id="regName" required placeholder="Aarav Sharma">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address *</label>
+              <input type="email" class="form-control" id="regEmail" required placeholder="aarav@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="regPhone" placeholder="+91 98765 43210">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input type="password" class="form-control" id="regPassword" required placeholder="At least 6 characters">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Role</label>
+              <select class="form-control" id="regRole">
+                <option value="USER" selected>Member (Standard User)</option>
+                <option value="ADMIN">Administrator</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+              Create Account
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <strong>Digital Library Management System</strong> · Authentication Portal
+      </div>
+      <div>
+        Role-Based Access Control (Admin / User)
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    function quickFill(email, pwd) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = pwd;
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const user = await DataService.login(email, password);
+        Auth.setCurrentUser(user);
+        showToast(`Welcome back, ${user.name}!`, 'success');
+
+        setTimeout(() => {
+          if (user.role === 'ADMIN') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'user.html';
+          }
+        }, 800);
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const role = document.getElementById('regRole').value;
+
+      try {
+        const user = await DataService.register(name, email, password, phone, role);
+        Auth.setCurrentUser(user);
+        showToast('Registration successful! Logging you in...', 'success');
+
+        setTimeout(() => {
+          if (user.role === 'ADMIN') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'user.html';
+          }
+        }, 800);
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    });
+  </script>
+</body>
+</html>
