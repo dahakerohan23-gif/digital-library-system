@@ -5,6 +5,14 @@
   "trailingSlash": false,
   "routes": [
     {
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/index.html",
+      "dest": "/public/index.html"
+    },
+    {
       "src": "/css/(.*)",
       "dest": "/public/css/$1"
     },
@@ -17,7 +25,15 @@
       "dest": "/public/admin.html"
     },
     {
+      "src": "/admin.html",
+      "dest": "/public/admin.html"
+    },
+    {
       "src": "/user",
+      "dest": "/public/user.html"
+    },
+    {
+      "src": "/user.html",
       "dest": "/public/user.html"
     },
     {
@@ -25,7 +41,15 @@
       "dest": "/public/contact.html"
     },
     {
+      "src": "/contact.html",
+      "dest": "/public/contact.html"
+    },
+    {
       "src": "/login",
+      "dest": "/public/login.html"
+    },
+    {
+      "src": "/login.html",
       "dest": "/public/login.html"
     },
     {
